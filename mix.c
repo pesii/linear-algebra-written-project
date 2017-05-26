@@ -1,16 +1,9 @@
-/*
- * Code for demonstrating a part of the Mix-column algorithm of the Rijndael cipher
- * April, 2017 ~ Linear Algebra
- * Pesi
- */
-#include <stdio.h>
 
-int main(void){
+#include "mix.h"
 
-	/* Wikipedia is such a sweet source for providing these lookup tables.
-	 * They make it unecessary to carry out the multiplication step because 
-	 * for elements in a finite field, is a bit complicated than regular multiplication
-	 * of integers
+int vector_matrix_multiplication(void){
+	/* These lookup tables make it unecessary to carry out the multiplication step because 
+	 * for elements in a finite field, it's a bit complicated than multiplication of integers
 	 */
 	int lookup_2[] = {
 	0x00,0x02,0x04,0x06,0x08,0x0a,0x0c,0x0e,0x10,0x12,0x14,0x16,0x18,0x1a,0x1c,0x1e,
@@ -50,45 +43,37 @@ int main(void){
 	0x0b,0x08,0x0d,0x0e,0x07,0x04,0x01,0x02,0x13,0x10,0x15,0x16,0x1f,0x1c,0x19,0x1a
 	};
 	/* The lookup-tables above were taken from Wikipedia page on Rijndael Cipher */
-	
-	/* Manually creating the MDS Matrix for the AES */
+
+
+	/* Initializing the MDS Matrix for the AES */
 	int mds_matrix[4][4];
+
     	// first row
-    	mds_matrix[0][0] = 2;
-	mds_matrix[0][1] = 3;
- 	mds_matrix[0][2] = 1;
+    	mds_matrix[0][0] = 2; 
+	mds_matrix[0][1] = 3; 
+	mds_matrix[0][2] = 1; 
 	mds_matrix[0][3] = 1;
+
 	// second row
 	mds_matrix[1][0] = 1;	
 	mds_matrix[1][1] = 2;
 	mds_matrix[1][2] = 3;
 	mds_matrix[1][3] = 1;
+
 	// third row
 	mds_matrix[2][0] = 1;	
 	mds_matrix[2][1] = 1;
 	mds_matrix[2][2] = 2;
 	mds_matrix[2][3] = 3;
+
 	// fourth row
 	mds_matrix[3][0] = 3;	
 	mds_matrix[3][1] = 1;
 	mds_matrix[3][2] = 1;
 	mds_matrix[3][3] = 2;
 	
-	/* Algorithm for querying the MDS matrix 
-	 */
-	printf("Here's the MDS-matrix:\n");
-	int i=0,j=0;
-	while (i <= 3){
-		printf("%d ",mds_matrix[i][j]);
-		j++;
-		if (j>3){
-			printf("\n");
-			j=0;
-			i++;
-		}
-	}
-	printf("\n");
-	
+	printf("Here's the MDS matrix:\n");
+	printMatrix(mds_matrix);  // prints the MDS matrix
 	
 	// vector drawn from the Galois-Field, GF(2^8)
 	int HexElements_GF[4], result[4];
@@ -99,27 +84,45 @@ int main(void){
 	HexElements_GF[2] = 0x3f;
 	HexElements_GF[3] = 0x67;
 	
-	printf("Vector in GF being multiplied with the MDS:\n");
-	for (i = 0; i<=3; i++)
-		printf("(%x)\n", HexElements_GF[i]);
-	printf("\n");
-	
-	/* Now to get to the meat of dot product, recall that ^ means XOR which is finite field's equivalence to addition
-		 Also, since 0x01 is a multiplicative identity, there's no need to lookup that value */
+	printf("HexElements_GF (values drawn from written project):\n");
+	printVector(HexElements_GF, 4); // prints the vector HexElements_GF
+
+
+	/*
+	 * This computes the dot-product of the MDS matrix and an arbitrary vector 
+	 */
 	result[0] = lookup_2[HexElements_GF[0]] ^ lookup_3[HexElements_GF[1]] ^ HexElements_GF[2] ^ HexElements_GF[3]; // first entry
 	result[1] = HexElements_GF[0] ^ lookup_2[HexElements_GF[1]] ^ lookup_3[HexElements_GF[2]] ^ HexElements_GF[3]; // second entry
 	result[2] = HexElements_GF[0] ^ HexElements_GF[1] ^ lookup_2[HexElements_GF[2]] ^ lookup_3[HexElements_GF[3]]; // third entry
 	result[3] = lookup_3[HexElements_GF[0]] ^ HexElements_GF[1] ^ HexElements_GF[2] ^ lookup_2[HexElements_GF[3]]; // fourth entry
+
+	printf("Result of MDS*HexElements_GF:\n");
+	printVector(result, 4);
+}
+
+
+void printMatrix(int matrix[][4]){
+	/* Querying the MDS matrix 
+	 */
+	int i=0,j=0, column_size=4;
+	while (i < column_size){
+		printf("%d ",matrix[i][j]);
+		j++;
+		if (j>3){
+			printf("\n");
+			j=0;
+			i++;
+		}
+	}
+	putchar('\n');
+}
+
+/* The array being passed to this function is intended to be a Hex
+ */
+void printVector(int vector[], int row_dimension){
+
+	for (int i = 0; i<row_dimension; i++)
+		printf("0x%x\n", vector[i]);
 	
-	printf("Resulting vector:\n");
-	for (i = 0; i<=3; i++)
-		printf("(%x)\n", result[i]);
-	printf("\n");
-	
-	printf("This demonstration shows how the computation of GF elements matrix-vector product \n \
-produces a vector in the same field. The source code will show perhaps more intriguing information than this \n \
-output.\n\n");
-			
-	
-	return 0;
+	putchar('\n');
 }
