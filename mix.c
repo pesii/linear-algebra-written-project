@@ -53,8 +53,8 @@ int main(void){
 	
 	/* Manually creating the MDS Matrix for the AES */
 	int mds_matrix[4][4];
-    // first row
-    mds_matrix[0][0] = 2;
+    	// first row
+    	mds_matrix[0][0] = 2;
 	mds_matrix[0][1] = 3;
  	mds_matrix[0][2] = 1;
 	mds_matrix[0][3] = 1;
